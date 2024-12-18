@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Ladder Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        #game-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        p {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        #word-input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #submit-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #submit-button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word Lover Game</h1>
+    <div id="game-container">
+        <p id="start-word"></p>
+        <p id="end-word"></p>
+        <input type="text" id="word-input" placeholder="Enter next word" />
+        <button id="submit-button">Submit</button>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        // JSON data of words
+        const wordData = {
+            "words": ["cat", "bat", "rat", "mat", "pat", "sat", "fat", "hat", "dog", "fog", "log"]
+        };
+
+        // Game variables
+        let startWord = "";
+        let endWord = "";
+        let currentWord = "";
+        let steps = 0;
+
+        // Utility functions
+        function generateRandomWordPair(words) {
+            const wordList = words.filter(word => word.length === 3);
+            if (wordList.length < 2) throw new Error("Not enough valid words.");
+            const start = wordList[Math.floor(Math.random() * wordList.length)];
+            let end;
+            do {
+                end = wordList[Math.floor(Math.random() * wordList.length)];
+            } while (start === end);
+            return [start, end];
+        }
+
+        function isValidWord(word, wordList) {
+            return wordList.includes(word);
+        }
+
+        function isOneLetterApart(word1, word2) {
+            if (word1.length !== word2.length) return false;
+            let diffCount = 0;
+            for (let i = 0; i < word1.length; i++) {
+                if (word1[i] !== word2[i]) diffCount++;
+                if (diffCount > 1) return false;
+            }
+            return diffCount === 1;
+        }
+
+        // Initialize the game
+        function initializeGame() {
+            const [start, end] = generateRandomWordPair(wordData.words);
+            startWord = start;
+            endWord = end;
+            currentWord = startWord;
+            steps = 0;
+
+            // Display start and end words
+            document.getElementById("start-word").textContent = `Start Word: ${startWord}`;
+            document.getElementById("end-word").textContent = `End Word: ${endWord}`;
+            document.getElementById("message").textContent = "";
+            document.getElementById("word-input").value = "";
+        }
+
+        // Handle submit button click
+        function handleSubmit() {
+            const inputWord = document.getElementById("word-input").value.trim().toLowerCase();
+            const messageElement = document.getElementById("message");
+
+            if (!isValidWord(inputWord, wordData.words)) {
+                messageElement.textContent = "Invalid word. Try again.";
+                messageElement.className = "error";
+                return;
+            }
+
+            if (!isOneLetterApart(currentWord, inputWord)) {
+                messageElement.textContent = "Word must differ by exactly one letter. Try again.";
+                messageElement.className = "error";
+                return;
+            }
+
+            currentWord = inputWord;
+            steps++;
+
+            if (currentWord === endWord) {
+                messageElement.textContent = `Congratulations! You completed the game in ${steps} steps.`;
+                messageElement.className = "success";
+                document.getElementById("submit-button").disabled = true;
+            } else {
+                messageElement.textContent = `Correct! Current word is now: ${currentWord}`;
+                messageElement.className = "success";
+            }
+
+            document.getElementById("word-input").value = "";
+        }
+
+        // Attach event listener
+        document.getElementById("submit-button").addEventListener("click", handleSubmit);
+
+        // Start the game
+        initializeGame();
+    </script>
+</body>
+</html>
